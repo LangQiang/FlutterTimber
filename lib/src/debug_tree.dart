@@ -34,14 +34,6 @@ class DebugTree extends Tree {
       logMessage = '[$timestamp] $levelStr $tagStr: $message';
     }
 
-    // 使用dart:developer的log函数输出，这样可以在IDE中正确显示
-    developer.log(
-      logMessage,
-      name: tag ?? 'Timber',
-      level: _mapLogLevel(level),
-      stackTrace: stackTrace,
-    );
-
     // 同时输出到print，确保在控制台可见
     // ignore: avoid_print
     print(logMessage);

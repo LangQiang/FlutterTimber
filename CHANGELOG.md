@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2024-12-19
+
+### Fixed
+- **🔧 修复DebugTree重复输出问题**: 
+  - 移除了同时使用 `developer.log()` 和 `print()` 导致的重复日志输出
+  - 现在仅使用 `print()` 输出，避免在Flutter控制台中看到两种不同格式的日志
+  - 保留ANSI颜色支持，确保日志输出格式统一清晰
+
+### Improved
+- **📈 性能优化**: 减少了不必要的日志输出操作，提升性能
+- **🎨 输出格式统一**: 所有日志现在都使用统一的格式和颜色方案
+
 ## [1.0.0] - 2024-01-01
 
 ### Added

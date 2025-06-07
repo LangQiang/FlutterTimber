@@ -2,7 +2,7 @@ name: flutter_timber
 description: >-
   A Flutter logging utility inspired by Android Timber. Provides a simple and
   extensible API for logging with tree-based output strategies for debug builds only.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/LangQiang/FlutterTimber
 repository: https://github.com/LangQiang/FlutterTimber
 
