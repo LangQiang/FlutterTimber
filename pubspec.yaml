@@ -3,8 +3,8 @@ description: >-
   A Flutter logging utility inspired by Android Timber. Provides a simple and
   extensible API for logging with tree-based output strategies for debug builds only.
 version: 1.0.0
-homepage: https://github.com/godq/flutter_timber
-repository: https://github.com/godq/flutter_timber
+homepage: https://github.com/LangQiang/FlutterTimber
+repository: https://github.com/LangQiang/FlutterTimber
 
 environment:
   sdk: '>=2.17.0 <4.0.0'
