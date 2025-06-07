@@ -1,5 +1,3 @@
-import 'dart:developer' as developer;
-
 import 'log_level.dart';
 import 'tree.dart';
 
@@ -34,7 +32,7 @@ class DebugTree extends Tree {
       logMessage = '[$timestamp] $levelStr $tagStr: $message';
     }
 
-    // 同时输出到print，确保在控制台可见
+    // 输出到print
     // ignore: avoid_print
     print(logMessage);
 
@@ -57,22 +55,6 @@ class DebugTree extends Tree {
     final second = dateTime.second.toString().padLeft(2, '0');
     final millisecond = dateTime.millisecond.toString().padLeft(3, '0');
     return '$hour:$minute:$second.$millisecond';
-  }
-
-  /// 将LogLevel映射到dart:developer的日志级别
-  int _mapLogLevel(LogLevel level) {
-    switch (level) {
-      case LogLevel.verbose:
-        return 500;
-      case LogLevel.debug:
-        return 500;
-      case LogLevel.info:
-        return 800;
-      case LogLevel.warn:
-        return 900;
-      case LogLevel.error:
-        return 1000;
-    }
   }
 
   /// 输出堆栈跟踪
