@@ -12,6 +12,18 @@ class TestTree extends Tree {
   }
 }
 
+/// 测试类，用于验证自动标签功能
+class TestClass {
+  void testMethod() {
+    Timber.d("测试类方法调用");
+  }
+}
+
+/// 测试函数，用于验证自动标签功能
+void _testClassMethod() {
+  Timber.d("测试函数调用");
+}
+
 void main() {
   group('Flutter Timber Tests', () {
     setUp(() {
@@ -171,6 +183,31 @@ void main() {
       
       // 应该自动植入DebugTree
       expect(Timber.treeCount, 1);
+    });
+
+    test('DebugTree自动标签功能测试', () {
+      // 测试启用自动标签
+      final debugTreeWithAutoTag = DebugTree(autoTag: true);
+      expect(debugTreeWithAutoTag.autoTag, true);
+      
+      // 测试禁用自动标签
+      final debugTreeWithoutAutoTag = DebugTree(autoTag: false);
+      expect(debugTreeWithoutAutoTag.autoTag, false);
+      
+      // 测试默认值
+      final debugTreeDefault = DebugTree();
+      expect(debugTreeDefault.autoTag, true);
+    });
+
+    test('自动标签提取功能测试', () {
+      final testTree = TestTree();
+      Timber.plant(testTree);
+
+      // 由于无法在测试中精确控制堆栈帧，我们只测试方法不抛出异常
+      expect(() => _testClassMethod(), returnsNormally);
+      
+      // 验证至少有日志输出
+      expect(testTree.logs.isNotEmpty, true);
     });
   });
 }

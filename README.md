@@ -15,29 +15,19 @@ and the Flutter guide for
 
 一个受Android Timber启发的Flutter日志工具库，提供简单且可扩展的日志记录API，采用Tree模式管理输出策略，专为开发调试设计。
 
-## 🎯 特性
+## 🎯 核心特性
 
-- **🌳 Tree模式**: 通过 `Timber.plant(tree)` 管理日志输出策略
-- **🚀 静态API**: 全局静态调用方式，使用简单
-- **🎨 IDEA颜色方案**: 支持彩色日志输出，提升开发体验
-- **🏷️ 标签支持**: 支持带标签的日志记录
-- **📚 堆栈跟踪**: 内置堆栈跟踪功能
-- **🔒 Release安全**: Release模式下自动静默，不影响生产环境
-- **🛡️ 线程安全**: 确保多线程环境下的安全性
+- **🌳 Tree模式**: 可插拔的日志输出策略
+- **🔄 自动Fallback**: 无Tree植入时自动使用DebugTree
+- **🔒 Release安全**: Release模式下在输出阶段自动拦截
+- **🏷️ 智能标签**: 自动生成类名标签，支持手动标签
+- **🎨 彩色输出**: 支持ANSI颜色的控制台输出
 
 ## 📦 安装
 
-在 `pubspec.yaml` 中添加依赖：
-
 ```yaml
 dependencies:
-  flutter_timber: ^1.0.0
-```
-
-然后运行：
-
-```bash
-flutter pub get
+  flutter_timber: ^1.0.2
 ```
 
 ## 🚀 快速开始
@@ -48,10 +38,10 @@ flutter pub get
 import 'package:flutter_timber/flutter_timber.dart';
 
 void main() {
-  // 植入调试Tree
+  // 可选：显式植入Tree（推荐，提高代码可读性）
   Timber.plant(DebugTree());
   
-  // 记录日志
+  // 即使不植入Tree也可以直接使用（会自动使用DebugTree）
   Timber.d("Debug message");
   Timber.i("Info message");
   Timber.w("Warning message");
@@ -61,25 +51,28 @@ void main() {
 }
 ```
 
-### 带标签的日志
+### 智能标签日志
 
 ```dart
-// 网络请求日志
-Timber.tag("Network").d("开始请求数据");
-Timber.tag("Network").i("请求成功");
+class NetworkService {
+  void fetchData() {
+    // 自动使用类名作为标签
+    Timber.d("开始请求数据");  // 输出: [NetworkService] 开始请求数据
+    Timber.i("请求成功");     // 输出: [NetworkService] 请求成功
+  }
+}
 
-// 数据库操作日志
-Timber.tag("Database").d("执行查询");
-Timber.tag("Database").w("查询耗时较长");
+// 手动指定标签（会覆盖自动标签）
+Timber.tag("CustomTag").d("自定义标签消息");
 ```
 
 ### 堆栈跟踪
 
 ```dart
-// 打印当前位置堆栈
+// 打印当前堆栈
 Timber.stack();
 
-// 打印指定堆栈
+// 打印异常堆栈
 try {
   riskyOperation();
 } catch (e, stackTrace) {
@@ -88,16 +81,16 @@ try {
 }
 ```
 
-## 📖 详细API
+## 📖 API概览
 
-### 基础日志方法
+### 日志方法
 
 ```dart
-Timber.v("Verbose message");  // 详细信息
-Timber.d("Debug message");    // 调试信息
-Timber.i("Info message");     // 一般信息
-Timber.w("Warning message");  // 警告信息
-Timber.e("Error message");    // 错误信息
+Timber.v("Verbose");  // 详细信息
+Timber.d("Debug");    // 调试信息  
+Timber.i("Info");     // 一般信息
+Timber.w("Warning");  // 警告信息
+Timber.e("Error");    // 错误信息
 ```
 
 ### Tree管理
@@ -107,34 +100,27 @@ Timber.e("Error message");    // 错误信息
 Timber.plant(DebugTree());
 
 // 植入多个Tree
-Timber.plantAll([
-  DebugTree(),
-  CustomTree(),
-]);
+Timber.plantAll([DebugTree(), CustomTree()]);
 
-// 移除所有Tree
+// 移除Tree
 Timber.uprootAll();
-
-// 移除指定Tree
 Timber.uproot(specificTree);
-
-// 获取Tree数量
-int count = Timber.treeCount;
 ```
 
-### 自定义Tree
+## 🔧 自定义Tree
 
 ```dart
 class CustomTree extends Tree {
   @override
   void log(LogLevel level, String message, String? tag, StackTrace? stackTrace) {
     // 自定义日志处理逻辑
-    final logMessage = '${level.name}: $message';
-    if (tag != null) {
-      print('[$tag] $logMessage');
-    } else {
-      print(logMessage);
-    }
+    print('${level.name}: $message');
+  }
+  
+  @override
+  bool isLogEnabled(LogLevel level) {
+    // 自定义日志级别过滤
+    return level.index >= LogLevel.info.index;
   }
 }
 
@@ -142,100 +128,74 @@ class CustomTree extends Tree {
 Timber.plant(CustomTree());
 ```
 
-## 🎨 日志输出格式
-
-DebugTree 输出格式：`[HH:mm:ss.SSS] LEVEL [TAG]: message`
-
-示例输出：
-```
-[14:30:15.123] D [Network]: 开始网络请求
-[14:30:15.456] I [Network]: 请求成功，状态码: 200
-[14:30:15.789] W [Database]: 连接池接近上限
-[14:30:16.012] E [UI]: 渲染失败
-```
-
-## 🌈 颜色方案
-
-| 级别 | 颜色 | ANSI代码 |
-|------|------|----------|
-| Verbose | 白色/灰色 | `\x1B[37m` |
-| Debug | 青色/蓝色 | `\x1B[36m` |
-| Info | 绿色 | `\x1B[32m` |
-| Warn | 黄色 | `\x1B[33m` |
-| Error | 红色 | `\x1B[31m` |
-
-## ⚙️ 配置选项
-
-### DebugTree 配置
+## ⚙️ DebugTree配置
 
 ```dart
-// 启用颜色输出（默认）
-Timber.plant(DebugTree(enableColors: true));
+// 默认配置（启用颜色和自动标签）
+Timber.plant(DebugTree());
 
-// 禁用颜色输出
-Timber.plant(DebugTree(enableColors: false));
+// 自定义配置
+Timber.plant(DebugTree(
+  enableColors: true,   // 启用颜色输出
+  autoTag: true,        // 启用自动类名标签
+));
+
+// 禁用自动标签
+Timber.plant(DebugTree(autoTag: false));
 ```
 
-## 🏗️ 最佳实践
+输出格式：`[HH:mm:ss.SSS] LEVEL [TAG]: message`
 
-### 1. 应用初始化
+### 自动标签说明
+- **类方法调用**: 自动提取类名作为标签
+- **顶层函数调用**: 自动提取文件名作为标签  
+- **手动标签优先**: 使用`Timber.tag()`时会覆盖自动标签
+- **Release安全**: 标签解析仅在Debug/Profile模式下执行
+
+## 🔒 Release模式行为
+
+### 工作原理
+1. **自动Fallback**: 未植入Tree时自动使用DebugTree
+2. **编译时检查**: DebugTree内部使用`dart.vm.product`判断
+3. **输出拦截**: Release模式下在log方法内部直接return
+
+### 性能说明
+- **Debug模式**: 完整日志功能（格式化+输出）
+- **Release模式**: 有轻微方法调用开销，但无格式化和I/O开销
+
+### 推荐做法
 
 ```dart
 void main() {
-  // 仅在Debug模式下植入Tree
-  if (kDebugMode) {
-    Timber.plant(DebugTree());
-  }
+  // 方式1：显式植入（推荐，代码更清晰）
+  Timber.plant(DebugTree());
+  
+  // 方式2：什么都不做（依赖自动fallback）
+  // 代码会自动使用DebugTree
   
   runApp(MyApp());
 }
 ```
 
-### 2. 模块化日志
+## 🎨 日志颜色
 
-```dart
-class NetworkService {
-  static final _logger = Timber.tag("Network");
-  
-  Future<void> fetchData() async {
-    _logger.d("开始获取数据");
-    try {
-      // 网络请求逻辑
-      _logger.i("数据获取成功");
-    } catch (e) {
-      _logger.e("数据获取失败: $e");
-    }
-  }
-}
-```
-
-### 3. 条件日志
-
-```dart
-// 仅在特定条件下记录详细日志
-if (kDebugMode && enableVerboseLogging) {
-  Timber.v("详细的调试信息");
-}
-```
+| 级别 | 颜色 | 
+|------|------|
+| Verbose | 白色/灰色 |
+| Debug | 青色/蓝色 |
+| Info | 绿色 |
+| Warn | 黄色 |
+| Error | 红色 |
 
 ## 🔧 技术规格
 
 - **Flutter**: >= 3.0.0
 - **Dart**: >= 2.17.0
-- **平台**: 仅支持Flutter项目（不支持纯Dart项目）
 
 ## 📝 许可证
 
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
-## 🤝 贡献
-
-欢迎提交 Issues 和 Pull Requests！
-
-## 📚 更多示例
-
-查看 [example](example/) 目录获取更多使用示例。
+MIT License
 
 ---
 
-**注意**: 此包专为开发调试设计，不建议在生产环境中进行日志收集。Release模式下所有日志输出都会被自动禁用。
+**重要提醒**: Release模式下日志调用仍有轻微开销（方法调用）可以忽略不计，自动标签解析仅在Debug/Profile模式下执行，如需零开销请手动移除日志调用。

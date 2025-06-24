@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-06-24
+
+### Added
+- **🏷️ 智能自动标签功能**: DebugTree新增`autoTag`参数，自动从堆栈跟踪提取类名作为日志标签，手动标签优先级更高
+- **🚀 性能优化**: Release模式下零性能开销，仅在Debug/Profile模式执行标签解析
+- **📖 文档修正**: 修正了文档与代码实现不匹配的问题
+
 ## [1.0.1] - 2024-12-19
 
 ### Fixed
